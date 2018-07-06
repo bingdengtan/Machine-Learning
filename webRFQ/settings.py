@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_jwt',
-    'oidc_provider',
     'app'
 ]
 
@@ -145,19 +144,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'app.authentication.JSONWebTokenAuthentication',
+        'app.authentication.IdentityTokenAuthentication',
+    )
 }
 
 # Authentication via identity server
-# JWKS_JSON: If cannot open json file from JWKS_URL, then get it form the setting.
 JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-    'JWKS_URL': 'http://localhost:5555/.well-known/openid-configuration/jwks',
-    'JWKS_JSON': {
-        'kty': "RSA",
-        'use': "sig",
-        'kid': "523285118ad8dc0b7fda8bd198f0e1be",
-        'e': "AQAB",
-        'n': "2L33k93oUvs70-ViKIUJkZYP-g7dX8znxHb4S_iTt1PGdvqHrkeDrVkWwsXLJtesjMsD70_WkYNphaIU4XG74S6VRXc0_E5mHnXM8afGvg3ZFZPS0TyxPyD5yucJCV-0tyPaQmRyUOTBgYLoy1qzXRvgSk83Md3abS_phR6oSyXbfhE5YTVOtJCTPDjQNWPXglGnEmJ_IME18YmQ36VdMz6kF3FRFj7Z7a8NMVjjwbiYYjEe9wuBYlD7l-T5V9ucCUwXi6AxuksfeUC9M57NEHvLZ5uM3pElKYbPU3ecBbupFlvyveey6pQyVvCdAefcY_Jgx0e9dyKj96YgZWSeqw",
-        'alg': "RS256"
-    }
+    'JWKS_URL': 'http://localhost:5555/.well-known/openid-configuration/jwks'
 }
+
+JWT_EXPIRATION_DELTA = datetime.timedelta(days=7)
