@@ -67,24 +67,32 @@ export class UserComponent implements OnInit {
   }
 
   showModal(): void {
+    this.initCheckRoles();
     $('#myModal').modal('show');
   }
 
   menuActionNew(): void {
-    this.roles.forEach(role => role['checked'] = false);
-
+    // this.roles.forEach(role => role['checked'] = false);
     this.user = {user_name: '', email: '', roles: [], creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
-    $('#myModal').modal('show');
+    this.showModal();
   }
 
   save(): void {
     const $btn = $('#saveButton').button('loading');
-    this.user.roles = this.roles.filter(opt => opt.checked === true).map(opt => opt.id);
+
+    const roleCheckedObjects = $('input[name="roles"]:checked');
+    const userRoles = [];
+    for (const role of roleCheckedObjects) {
+      userRoles.push(role.value);
+    }
+    this.user.roles = userRoles;
+
+    // this.user.roles = this.roles.filter(opt => opt.checked === true).map(opt => opt.id);
     this.userService.save(this.user).then( response => {
       $btn.button('reset');
       if ($('#myModal').modal('hide')) {
         this.gridComponent.loadGrid(1);
-        this.roles.forEach(role => role.checked = false);
+        // this.roles.forEach(role => role.checked = false);
       }
     }).catch(e => {
       $btn.button('reset');
@@ -93,7 +101,15 @@ export class UserComponent implements OnInit {
   }
 
   menuActionEdit(): void {
-    console.log(this.gridComponent.getSelectedRows());
+    const rows = this.gridComponent.getSelectedRows();
+    if (rows.length !== 1) {
+      this.toastr.warning('Please select one document to edit.', '', {
+        positionClass: 'toast-top-center'
+      });
+    } else {
+      this.user = JSON.parse(JSON.stringify(rows[0]));
+      this.showModal();
+    }
   }
 
   menuActionDelete(): void {
@@ -131,7 +147,21 @@ export class UserComponent implements OnInit {
 
   cellClickAction(row): void {
     this.user = JSON.parse(JSON.stringify(row));
-    $('#myModal').modal('show');
+    this.showModal();
+  }
+
+  initCheckRoles(): void {
+    const roleObjects = $('input[name="roles"]');
+    if (this.user.roles.length <= 0) {
+      for (const role of roleObjects) {
+        role.checked = false;
+      }
+    } else {
+      const roleIds = this.user.roles.map(x => '' + x);
+      for (const role of roleObjects) {
+        role.checked = roleIds.indexOf(role.value) > -1;
+      }
+    }
   }
 
   getDateFormat(row, val): String {

@@ -52,7 +52,7 @@
                 <div class="col-md-3"><label class="control-label">Roles:</label></div>
                 <div class="col-md-9">                    
                     <div *ngFor="let role of roles" class="role">
-                      <input type="checkbox" name="roles" [checked]="user.roles.indexOf(role.id)>-1" value="{{role.role_name}}" [(ngModel)]="role.checked" />{{role.role_name}}
+                      <input type="checkbox" name="roles" value="{{role.id}}" />{{role.role_name}}
                     </div>
                 </div>
               </div> 

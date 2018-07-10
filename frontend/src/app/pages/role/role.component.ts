@@ -73,7 +73,15 @@ export class RoleComponent implements OnInit {
   }
 
   menuActionEdit(): void {
-    console.log(this.gridComponent.getSelectedRows());
+    const rows = this.gridComponent.getSelectedRows();
+    if (rows.length !== 1) {
+      this.toastr.warning('Please select one document to edit.', '', {
+        positionClass: 'toast-top-center'
+      });
+    } else {
+      this.role = JSON.parse(JSON.stringify(rows[0]));
+      $('#myModal').modal('show');
+    }
   }
 
   menuActionDelete(): void {
