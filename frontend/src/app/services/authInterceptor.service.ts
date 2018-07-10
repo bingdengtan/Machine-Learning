@@ -29,7 +29,6 @@ export class AuthInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         let requestToForward = req;
-
         if (this.oidcSecurityService === undefined) {
             this.oidcSecurityService = this.injector.get(OidcSecurityService);
         }
@@ -42,6 +41,7 @@ export class AuthInterceptor implements HttpInterceptor {
         } else {
             console.log('OidcSecurityService undefined: NO auth header!');
         }
+
         return next.handle(requestToForward).catch( err => this.handleAuthError(err));
     }
 }

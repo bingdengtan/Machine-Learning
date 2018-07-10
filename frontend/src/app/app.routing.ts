@@ -16,15 +16,15 @@ import { UserComponent } from './pages/user/user.component';
 @NgModule({
   imports: [
     RouterModule.forRoot([
-      { path: '', redirectTo: 'dashboard/home', pathMatch: 'full' },
+      { path: '', redirectTo: 'starter', pathMatch: 'full' },
       { path: 'starter', component: StarterComponent},
       { path: 'authorized', component: AuthorizedComponent},
       { path: 'unauthorized', component: UnauthorizedComponent },
       { path: 'forbidden', component: ForbiddenComponent },
       { path: 'dashboard', component: DashboardComponent,
         children: [
-          { path: 'home', component: HomeComponent},
-          { path: 'roles', component: RoleComponent},
+          { path: 'home', component: HomeComponent, canActivate: [AuthorizationGuard] },
+          { path: 'roles', component: RoleComponent, canActivate: [AuthorizationGuard] },
           { path: 'users', component: UserComponent, canActivate: [AuthorizationGuard]}
         ]
       }

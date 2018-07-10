@@ -79,19 +79,16 @@ export class UserComponent implements OnInit {
 
   save(): void {
     const $btn = $('#saveButton').button('loading');
-    this.user.roles = this.roles.filter(opt => opt.checked).map(opt => opt.id);
+    this.user.roles = this.roles.filter(opt => opt.checked === true).map(opt => opt.id);
     this.userService.save(this.user).then( response => {
       $btn.button('reset');
-      if (response.success) {
-        if ($('#myModal').modal('hide')) {
-          this.gridComponent.loadGrid(1);
-        }
-      } else {
-        this.toastr.error(response.error, 'Save Failed');
+      if ($('#myModal').modal('hide')) {
+        this.gridComponent.loadGrid(1);
+        this.roles.forEach(role => role.checked = false);
       }
     }).catch(e => {
       $btn.button('reset');
-      this.toastr.error(e.toString(), 'Save Failed');
+      this.toastr.error(e.error.detail, 'Save Failed');
     });
   }
 
@@ -122,11 +119,13 @@ export class UserComponent implements OnInit {
 
   confirmDeletetion(): void {
     const selectedIds = this.gridComponent.getSelectedIds();
-    this.userService.delete(selectedIds).then( response => {
-      if (response.success) {
-        this.toastr.success('Delete completed', '');
-        this.gridComponent.loadGrid(1);
-      }
+    selectedIds.forEach(async id => {
+      await this.userService.delete(id).then( response => {
+          this.toastr.success('Delete completed', '');
+          this.gridComponent.loadGrid(1);
+      }).catch(e => {
+        this.toastr.error(e.error.detail, 'Delete Failed');
+      });
     });
   }
 
@@ -144,14 +143,24 @@ export class UserComponent implements OnInit {
   }
 
   getRolesFormat(row, val): String {
-    return val.join(', ');
+    if (val.length > 0) {
+      const roles = this.roles.filter( (role) => val.indexOf(role.id) >= 0);
+      return roles.map( role => role.role_name).join(', ');
+    }
+    return '';
   }
 
   private initGrid(): void {
-    this.restUrl = this.userService.restUrl + '/list';
-    let nameCol: GridColumn = {title: 'User Name', filedName: 'user_name', width: null, columnFormat: null, display: true,
+    this.restUrl = this.userService.restUrl;
+
+    let nameCol: GridColumn = {title: 'ID', filedName: 'id', width: null, columnFormat: null, display: false,
+      click: null,
+      sort: {enable: false, sortBy: null}};
+    this.gridColumns.push(nameCol);
+
+    nameCol = {title: 'User Name', filedName: 'username', width: null, columnFormat: null, display: true,
       click: this.cellClickAction.bind(this),
-      sort: {enable: true, sortBy: 'user_name'}};
+      sort: {enable: true, sortBy: 'username'}};
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Email', filedName: 'email', width: null, columnFormat: null, display: true,
@@ -164,9 +173,9 @@ export class UserComponent implements OnInit {
       sort: {enable: false, sortBy: null}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'Active', filedName: 'active', width: null, columnFormat: this.getActiveFormat.bind(this), display: true,
+    nameCol = {title: 'Active', filedName: 'is_active', width: null, columnFormat: this.getActiveFormat.bind(this), display: true,
       click: null,
-      sort: {enable: true, sortBy: 'active'}};
+      sort: {enable: true, sortBy: 'is_active'}};
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Creation Date', filedName: 'creation_date', width: null, columnFormat: this.getDateFormat.bind(this),
@@ -175,10 +184,10 @@ export class UserComponent implements OnInit {
       sort: {enable: true, sortBy: 'creation_date'}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'Creation By', filedName: 'creation_by', width: null, columnFormat: null,
+    nameCol = {title: 'Creation By', filedName: 'created_by', width: null, columnFormat: null,
       display: false,
       click: null,
-      sort: {enable: true, sortBy: 'creation_by'}};
+      sort: {enable: true, sortBy: 'created_by'}};
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Last Updated Date', filedName: 'last_updated_date', width: null, columnFormat: this.getDateFormat.bind(this),
@@ -216,7 +225,7 @@ export class UserComponent implements OnInit {
     this.roleService.list({pageNumber: 1, pageSize: 100, sortBy: 'role_name', orderBy: 'asc'}, {})
       .then(roles => {
         this.roles = roles.results.map(role => {
-          return {checked: false, id: role._id, role_name: role.role_name};
+          return {checked: false, id: role.id, role_name: role.role_name};
         });
       });
   }

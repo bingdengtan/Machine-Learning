@@ -26,7 +26,10 @@ class IdentityTokenAuthentication(BaseAuthentication):
         if username == '':
             raise exceptions.AuthenticationFailed(_(message))
         try:
-            auth_user = User_Base.objects.get(username__iexact=username)
+            user = User_Base.objects.get(username__iexact=username)
+            auth_user = User()
+            auth_user.is_active = True
+            auth_user.username = user.username
             if not auth_user.is_active:
                 raise exceptions.AuthenticationFailed(_('User inactive or deleted.'))
             return auth_user, None
@@ -74,7 +77,10 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             try:
                 payload = jwt.decode(auth[1], settings.SECRET_KEY)
                 username = payload['username']
-                auth_user = User_Base.objects.get(username__iexact=username)
+                user = User_Base.objects.get(username__iexact=username)
+                auth_user = User()
+                auth_user.is_active = True
+                auth_user.username = user.username
                 if not auth_user.is_active:
                     raise exceptions.AuthenticationFailed(_('User inactive or deleted.'))
 

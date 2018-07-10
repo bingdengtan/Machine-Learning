@@ -22,3 +22,7 @@ def encode_password(password):
                   salt='salt',
                   iterations=50000)
     return pwd
+
+
+def has_attribute(data, attribute):
+    return attribute in data and data[attribute] is not None

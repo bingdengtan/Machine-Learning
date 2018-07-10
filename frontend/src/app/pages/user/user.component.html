@@ -18,9 +18,9 @@
       [pageSize]=10 
       [pageSizes]="[10,20,50,100]" 
       [restUrl]="restUrl" 
-      [sortBy]="'user_name'" 
+      [sortBy]="'username'" 
       [orderBy]="'asc'"
-      [FTSearch]="{'show': true, 'placeholder': 'User Name', 'forNames': ['user_name']}"
+      [FTSearch]="{'show': true, 'placeholder': 'User Name', 'forNames': ['username']}"
       [selection]="{'show': true, 'multiple': true}"
     >   
     </app-grid>   
@@ -39,7 +39,7 @@
               <div class="row">
                 <div class="col-md-3"><label class="control-label">User Name:</label></div>
                 <div class="col-md-9">                    
-                    <input type="text" [disabled]="user._id != null" class="form-control" name="user.user_name" required [(ngModel)]="user.user_name">
+                    <input type="text" [disabled]="user.id != null" class="form-control" name="user.username" required [(ngModel)]="user.username">
                 </div>
               </div>
               <div class="row">
@@ -52,7 +52,7 @@
                 <div class="col-md-3"><label class="control-label">Roles:</label></div>
                 <div class="col-md-9">                    
                     <div *ngFor="let role of roles" class="role">
-                      <input type="checkbox" name="roles" [checked]="user.roles.indexOf(role.role_name)>-1" value="{{role.role_name}}" [(ngModel)]="role.checked" />{{role.role_name}}
+                      <input type="checkbox" name="roles" [checked]="user.roles.indexOf(role.id)>-1" value="{{role.role_name}}" [(ngModel)]="role.checked" />{{role.role_name}}
                     </div>
                 </div>
               </div> 

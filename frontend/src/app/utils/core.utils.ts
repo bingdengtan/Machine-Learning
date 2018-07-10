@@ -26,4 +26,17 @@ export class CoreUtils {
         }
         return val;
     }
+
+    getQueryPagination(pager: IPager, query: any): string {
+        let url = '';
+        url += '?page=' + pager.pageNumber + '&page_size=' + pager.pageSize;
+        if (pager.sortBy) {
+          url += '&ordering=' + (pager.orderBy === 'asc' ?  '' : '-') + pager.sortBy;
+        }
+        const keys = Object.keys(query);
+        keys.forEach(k => {
+          url += '&' + k + '=' + encodeURI(query[k]);
+        });
+        return url;
+    }
 }

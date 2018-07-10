@@ -4,6 +4,8 @@ import { FormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import 'rxjs/Rx';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { forEach } from '@angular/router/src/utils/collection';
+import { encode } from 'punycode';
 
 declare var Pace: any;
 // declare var jquery: any;
@@ -64,7 +66,7 @@ export class GridComponent implements OnInit {
   };
   pages = 5;
 
-  start = 0; last = 0; total = 0;
+  start = 0; last = 0; count = 0;
   pageInfo: String = '';
   searchTerm: FormControl;
   loading = false;
@@ -88,6 +90,20 @@ export class GridComponent implements OnInit {
     return val;
   }
 
+  getQueryUrl(pageNumber: number): string {
+    let url = this.restUrl;
+    url = this.restUrl + '?page=' + pageNumber + '&page_size=' + this.pageSize;
+    if (this.sortBy) {
+      url += '&ordering=' + (this.orderBy === 'asc' ?  '' : '-') + this.sortBy;
+    }
+    const query = this.getQueryObject();
+    const keys = Object.keys(query);
+    keys.forEach(k => {
+      url += '&' + k + '=' + encodeURI(query[k]);
+    });
+    return url;
+  }
+
   loadGrid(pageNumber: number): void {
     // Pace.restart();
     this.loading = true;
@@ -98,10 +114,12 @@ export class GridComponent implements OnInit {
       }
     }
 
-    this.http.post(this.restUrl, this.getPostData(pageNumber))
+    this.http.get(this.getQueryUrl(pageNumber))
       .toPromise()
       .then( response => {
         this.grid = response;
+        const searchParams = new URLSearchParams(this.restUrl);
+        this.grid.pageNumber = pageNumber;
         this.gridRows = this.grid.results;
         this.resetPager();
       })
@@ -124,13 +142,14 @@ export class GridComponent implements OnInit {
     this.loading = false;
 
     // page information
-    if (this.grid.total <= 0) {
+    this.grid.pageCount = Math.ceil(this.grid.count / this.pageSize);
+    if (this.grid.count <= 0) {
       this.start = 0; this.last = 0;
     } else {
       this.start = (this.grid.pageNumber - 1) * this.pageSize + 1;
-      this.last = this.grid.pageNumber === this.grid.pageCount ? this.grid.total : this.grid.pageNumber * this.pageSize;
+      this.last = this.grid.pageNumber === this.grid.pageCount ? this.grid.count : this.grid.pageNumber * this.pageSize;
     }
-    this.pageInfo = `Show ${this.start} - ${this.last} , Total ${this.grid.total} Records`;
+    this.pageInfo = `Show ${this.start} - ${this.last} , Total ${this.grid.count} Records`;
 
     // set the pager
     // this.grid.pageNumber = 13;
@@ -144,10 +163,14 @@ export class GridComponent implements OnInit {
     }
 
     this.pager = {
-      enableFirst: this.grid.pageNumber > 1,
-      enableLast: this.grid.pageNumber < this.grid.pageCount,
-      enablePrevious: this.grid.pageNumber > 1,
-      enableNext: this.grid.pageNumber < this.grid.pageCount,
+      // enableFirst: this.grid.pageNumber > 1,
+      enableFirst: this.grid.previous != null,
+      // enableLast: this.grid.pageNumber < this.grid.pageCount,
+      enableLast: this.grid.next != null,
+      // enablePrevious: this.grid.pageNumber > 1,
+      enablePrevious: this.grid.previous != null,
+      // enableNext: this.grid.pageNumber < this.grid.pageCount,
+      enableNext: this.grid.next != null,
       showNextPages: Math.ceil(this.grid.pageNumber / this.pages) * this.pages < this.grid.pageCount,
       curPages: curPages
     };
@@ -197,11 +220,13 @@ export class GridComponent implements OnInit {
       .distinctUntilChanged()
       .switchMap( term => {
         this.loading = true;
-        return this.http.post(this.restUrl, this.getPostData(1));
+        // return this.http.post(this.restUrl, this.getPostData(1));
+        return this.http.get(this.getQueryUrl(1));
       })
       .subscribe( response => {
         this.grid = response;
         this.gridRows = this.grid.results;
+        this.grid.pageNumber = 1;
         this.resetPager();
       });
   }
@@ -209,7 +234,7 @@ export class GridComponent implements OnInit {
   public getSelectedRows(): any {
     const _selectedRows = [];
     this.gridRows.forEach( row => {
-      if (this.selectedIds.indexOf(row['_id']) > -1) {
+      if (this.selectedIds.indexOf(row['id']) > -1) {
         _selectedRows.push(row);
       }
     });
@@ -219,8 +244,8 @@ export class GridComponent implements OnInit {
   public getSelectedIds(): Array<string> {
     const ids = [];
     this.gridRows.forEach( row => {
-      if (this.selectedIds.indexOf(row['_id']) > -1) {
-        ids.push(row['_id']);
+      if (this.selectedIds.indexOf(row['id']) > -1) {
+        ids.push(row['id']);
       }
     });
     return ids;
@@ -228,11 +253,11 @@ export class GridComponent implements OnInit {
 
   toggleSelection(row): void {
     this.selectedIds = this.selection.multiple ? this.selectedIds : [];
-    const idx = this.selectedIds.indexOf(row['_id']);
+    const idx = this.selectedIds.indexOf(row['id']);
     if ( idx > -1) {
       this.selectedIds.splice(idx, 1);
     } else {
-      this.selectedIds.push(row['_id']);
+      this.selectedIds.push(row['id']);
     }
     if (this.selectedIds.length > 0 && this.selectedIds.length === this.gridRows.length) {
       this.isSelectedAll = true;
@@ -247,27 +272,30 @@ export class GridComponent implements OnInit {
     this.selectedIds = [];
     if (this.isSelectedAll) {
       this.gridRows.forEach( row => {
-        this.selectedIds.push(row['_id']);
+        this.selectedIds.push(row['id']);
       });
     }
   }
 
-  private getPostData(pageNumber: number): any {
+  private getQueryObject(): any {
     let query = {};
 
     if (this.FTSearch.show) {
       if (this.searchTerm.value && this.searchTerm.value !== '') {
         if (this.FTSearch.forNames.length > 0) {
           if (this.FTSearch.forNames.length === 1) {
-            query[this.FTSearch.forNames[0]] = {$regex: '.*' + this.searchTerm.value + '.*', $options: 'i'};
+            // query[this.FTSearch.forNames[0]] = {$regex: '.*' + this.searchTerm.value + '.*', $options: 'i'};
+            query[this.FTSearch.forNames[0]] = this.searchTerm.value;
           } else {
             const queryFields = [];
             this.FTSearch.forNames.forEach(value => {
               const obj = {};
-              obj[value] = {$regex: '.*' + this.searchTerm.value + '.*', $options: 'i'};
+              // obj[value] = {$regex: '.*' + this.searchTerm.value + '.*', $options: 'i'};
+              obj[value] = this.searchTerm.value;
               queryFields.push(obj);
             });
-            query = {$or: queryFields};
+            // query = {$or: queryFields};
+            query = queryFields;
           }
         }
       }
@@ -277,12 +305,16 @@ export class GridComponent implements OnInit {
       }
     }
 
-    return {
-      pageNumber: pageNumber,
-      pageSize: this.pageSize,
-      sortBy: this.sortBy !== '' ? this.sortBy : null,
-      orderBy: this.orderBy !== '' ? this.orderBy : null,
-      query: query
-    };
+    return query;
   }
+
+  // private getPostData(pageNumber: number): any {
+  //   return {
+  //     pageNumber: pageNumber,
+  //     pageSize: this.pageSize,
+  //     sortBy: this.sortBy !== '' ? this.sortBy : null,
+  //     orderBy: this.orderBy !== '' ? this.orderBy : null,
+  //     query: this.getQueryObject()
+  //   };
+  // }
 }

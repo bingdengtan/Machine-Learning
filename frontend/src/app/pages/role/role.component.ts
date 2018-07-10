@@ -63,15 +63,12 @@ export class RoleComponent implements OnInit {
     const $btn = $('#saveButton').button('loading');
     this.roleService.save(this.role).then( response => {
       $btn.button('reset');
-      if (response.success) {
-        if ($('#myModal').modal('hide')) {
-          this.gridComponent.loadGrid(1);
-        }
-      } else {
-        this.toastr.error(response.error, 'Save Failed');
+      if ($('#myModal').modal('hide')) {
+        this.gridComponent.loadGrid(1);
       }
     }).catch(e => {
       $btn.button('reset');
+      this.toastr.error(e.error.detail, 'Save Failed');
     });
   }
 
@@ -102,11 +99,13 @@ export class RoleComponent implements OnInit {
 
   confirmDeletetion(): void {
     const selectedIds = this.gridComponent.getSelectedIds();
-    this.roleService.delete(selectedIds).then( response => {
-      if (response.success) {
-        this.toastr.success('Delete completed', '');
-        this.gridComponent.loadGrid(1);
-      }
+    selectedIds.forEach(async id => {
+      await this.roleService.delete(id).then( response => {
+          this.toastr.success('Delete completed', '');
+          this.gridComponent.loadGrid(1);
+      }).catch(e => {
+        this.toastr.error(e.error.detail, 'Delete Failed');
+      });
     });
   }
 
@@ -115,7 +114,8 @@ export class RoleComponent implements OnInit {
   }
 
   cellClickAction(row): void {
-    console.log(row);
+    this.role = JSON.parse(JSON.stringify(row));
+    $('#myModal').modal('show');
   }
 
   getDateFormat(row, val): String {
@@ -123,8 +123,14 @@ export class RoleComponent implements OnInit {
   }
 
   initGrid(): void {
-    this.restUrl = this.roleService.restUrl + '/list';
-    let nameCol: GridColumn = {title: 'Role Name', filedName: 'role_name', width: null, columnFormat: null, display: true,
+    this.restUrl = this.roleService.restUrl;
+
+    let nameCol: GridColumn = {title: 'ID', filedName: 'id', width: null, columnFormat: null, display: false,
+      click: null,
+      sort: {enable: false, sortBy: null}};
+    this.gridColumns.push(nameCol);
+
+    nameCol = {title: 'Role Name', filedName: 'role_name', width: null, columnFormat: null, display: true,
       click: this.cellClickAction.bind(this),
       sort: {enable: true, sortBy: 'role_name'}};
     this.gridColumns.push(nameCol);
@@ -140,10 +146,10 @@ export class RoleComponent implements OnInit {
       sort: {enable: true, sortBy: 'creation_date'}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'Creation By', filedName: 'creation_by', width: null, columnFormat: null,
+    nameCol = {title: 'Creation By', filedName: 'created_by', width: null, columnFormat: null,
       display: false,
       click: null,
-      sort: {enable: true, sortBy: 'creation_by'}};
+      sort: {enable: true, sortBy: 'created_by'}};
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Last Updated Date', filedName: 'last_updated_date', width: null, columnFormat: this.getDateFormat.bind(this),

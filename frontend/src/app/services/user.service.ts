@@ -7,7 +7,7 @@ import { CoreUtils } from '../utils/core.utils';
 
 @Injectable()
 export class UserService {
-  restUrl = 'user';
+  restUrl = 'user/';
   constructor(public http: HttpClient, public coreUtils: CoreUtils) {
       this.restUrl = environment.api + this.restUrl;
   }
@@ -27,12 +27,17 @@ export class UserService {
 
   save(user: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      let action = 'create';
-      if (user._id) {
-        action = 'update';
-      }
-
-      this.http.post(this.restUrl + '/' + action, {user: user})
+      if (user.id) {
+        this.http.put(this.restUrl + user.id + '/', user)
+          .toPromise()
+          .then( response => {
+            resolve(response);
+          })
+          .catch(e => {
+            reject(e);
+          });
+      } else {
+        this.http.post(this.restUrl, user)
         .toPromise()
         .then( response => {
           resolve(response);
@@ -40,12 +45,13 @@ export class UserService {
         .catch(e => {
           reject(e);
         });
+      }
     });
   }
 
-  delete(ids: Array<string>): Promise<any> {
+  async delete(id: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.http.post(this.restUrl + '/delete', {ids: ids})
+      this.http.delete(this.restUrl + id)
         .toPromise()
         .then( response => {
           resolve(response);

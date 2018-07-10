@@ -74,7 +74,7 @@
       <tbody>
         <tr *ngFor="let item of gridRows;let i = index;">
           <td [hidden]="!selection.show" style="min-width:40px;max-width:40px;">
-            <input type="checkbox" value="{{item['_id']}}" [checked]="selectedIds.indexOf(item['_id']) > -1" (click)="toggleSelection(item)">
+            <input type="checkbox" value="{{item['id']}}" [checked]="selectedIds.indexOf(item['id']) > -1" (click)="toggleSelection(item)">
           </td>
           <td [hidden] = "!showIndex" style="min-width:50px;max-width:50px;">{{i+1}}</td>
           <td *ngFor="let column of columns" [hidden]="!column.display">

@@ -74,7 +74,7 @@ export function loadConfig(oidcConfigService: OidcConfigService) {
     AuthModule.forRoot()
   ],
   providers: [
-    {provide: LocationStrategy, useClass: HashLocationStrategy},
+    // {provide: LocationStrategy, useClass: HashLocationStrategy},
     OidcConfigService,
     AuthService,
     CoreService,
