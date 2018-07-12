@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import datetime
+import sys
+import mongoengine
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_mongoengine',
     'rest_framework_jwt',
     'corsheaders',
     'app'
@@ -49,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -95,6 +98,51 @@ DATABASES = {
     }
 }
 
+# We define 2 Mongo databases - default and test
+MONGODB_DATABASES = {
+    "default": {
+        "name": "webRFQ",
+        "host": "localhost",
+        "port": 27017,
+        "tz_aware": True,  # if you use timezones in django (USE_TZ = True)
+    },
+
+    "test": {
+        "name": "test_project",
+        "host": "localhost",
+        "port": 27017,
+        "tz_aware": True,  # if you use timezones in django (USE_TZ = True)
+    }
+}
+
+def is_test():
+    """
+    Checks, if we're running the server for real or in unit-test.
+    We might need a better implementation of this function.
+    """
+    if 'test' in sys.argv or 'testserver' in sys.argv:
+        print("Using a test mongo database")
+        return True
+    else:
+        print("Using a default mongo database")
+        return False
+
+if is_test():
+    db = 'test'
+else:
+    db = 'default'
+
+# establish connection with default or test database, depending on the management command, being run
+# note that this connection syntax is correct for mongoengine0.9-, but mongoengine0.10+ introduced slight changes
+
+mongoengine.register_connection(
+    'webRFQ',
+    name=MONGODB_DATABASES[db]['name'],
+    host=MONGODB_DATABASES[db]['host'],
+    port=MONGODB_DATABASES[db]['port']
+)
+
+mongoengine.connect('webRFQ')
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -144,7 +192,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'app.authentication.JSONWebTokenAuthentication',

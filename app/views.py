@@ -2,8 +2,6 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.hashers import PBKDF2PasswordHasher
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
-from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import viewsets, permissions, renderers
 from rest_framework_jwt.views import ObtainJSONWebToken
@@ -12,12 +10,13 @@ from rest_framework import serializers, exceptions
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 
 from datetime import datetime
-import app.core.utils as utils
+from django.utils import timezone
 import jwt
 import json
 
-from app.serializers import UserBaseSerializer, RoleBaseSerializer, UserRoleSerializer
-from app.models import User_Base, Role_Base, User_Role
+import app.core.utils as utils
+from app.serializers import UserBaseSerializer, RoleBaseSerializer
+from app.models import User_Base, Role_Base
 from app.permissions import IsAuthenticated
 from app.core.utils import encode_password
 
@@ -46,24 +45,20 @@ class UserBaseViewSet(viewsets.ModelViewSet):
         data = json.loads(json.dumps(request.data))
         data['created_by'] = request.user.username
         data['last_updated_by'] = request.user.username
+        data['last_updated_date'] = timezone.now()
+        data['creation_date'] = timezone.now()
 
         if utils.has_attribute(data, 'password'):
-            data['password'] = encode_password(data['password'])
+            data['password'] = encode_password(request.data.get('password'))
 
         serializer = self.serializer_class(data=data)
+
         if self.serializer_class().is_user_exist(data):
             msg = _('User name or email already exists!')
             raise serializers.ValidationError({'detail': msg})
 
         if serializer.is_valid():
             serializer.save()
-            # create roles
-            roles_id = request.data.get('roles')
-            for role_id in roles_id:
-                user = User_Base.objects.get(pk=serializer.data.get('id'))
-                role = Role_Base.objects.get(pk=role_id)
-                user_role = User_Role(user=user, role=role)
-                user_role.save()
 
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
@@ -81,17 +76,6 @@ class UserBaseViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        user_role_serializer = UserRoleSerializer()
-        user_role_serializer.remove_user_roles_by_user_id(serializer.data.get('id'))
-        
-        roles_id = request.data.get('roles')
-        for role_id in roles_id:
-            user = User_Base.objects.get(pk=serializer.data.get('id'))
-            role = Role_Base.objects.get(pk=role_id)
-            user_role = User_Role(user=user, role=role)
-            user_role.save()
-
 
         return Response(serializer.data)
 
@@ -129,8 +113,11 @@ class RoleBaseViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = json.loads(json.dumps(request.data))
-        data['created_by'] = request.user.username
-        data['last_updated_by'] = request.user.username
+
+        data['created_by'] = 'BingDeng Tan'
+        data['last_updated_by'] = 'BingDeng Tan'
+        data['last_updated_date'] = timezone.now()
+        data['creation_date'] = timezone.now()
 
         serializer = self.serializer_class(data=data)
         if self.serializer_class().is_role_exist(data):
@@ -144,16 +131,12 @@ class RoleBaseViewSet(viewsets.ModelViewSet):
         else:
             raise serializers.ValidationError(serializer.errors)
 
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        roles = self.serializer_class.Meta.model.objects.filter(
-            Q(role_name__iexact=request.data.get('role_name')),
-            ~Q(id__in=[instance.id])
-        )
-
-        if len(roles) >= 1:
+        if self.serializer_class().is_role_exist(request.data):
             msg = _('Role name already exists!')
             raise serializers.ValidationError({'detail': msg})
 

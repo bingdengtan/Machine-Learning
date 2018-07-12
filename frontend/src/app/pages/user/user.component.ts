@@ -12,7 +12,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { ToastrService } from 'ngx-toastr';
 
 interface IUser {
-  user_name: string;
+  username: string;
   email: string;
   roles: Array<string>;
   creation_date: null;
@@ -38,7 +38,7 @@ export class UserComponent implements OnInit {
   assignedRoles: any[] = new Array();
 
   user: IUser = {
-    user_name: '',
+    username: '',
     email: '',
     roles: [],
     creation_date: null,
@@ -73,7 +73,7 @@ export class UserComponent implements OnInit {
 
   menuActionNew(): void {
     // this.roles.forEach(role => role['checked'] = false);
-    this.user = {user_name: '', email: '', roles: [], creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
+    this.user = {username: '', email: '', roles: [], creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
     this.showModal();
   }
 
