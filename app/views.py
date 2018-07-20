@@ -8,11 +8,13 @@ from rest_framework_jwt.views import ObtainJSONWebToken
 from rest_framework.response import Response
 from rest_framework import serializers, exceptions
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
+from rest_framework import views
 
 from datetime import datetime
 from django.utils import timezone
 import jwt
 import json
+import numpy as np
 
 import app.core.utils as utils
 from app.serializers import UserBaseSerializer, RoleBaseSerializer
@@ -21,7 +23,11 @@ from app.permissions import IsAuthenticated
 from app.core.utils import encode_password
 
 # Create your views here.
-
+import os
+import datetime
+import sys
+import mongoengine
+from keras.models import load_model
 
 class UserBaseViewSet(viewsets.ModelViewSet):
     """
@@ -187,3 +193,17 @@ class JSONWebTokenObtainViewSet(ObtainJSONWebToken):
             return Response({'token': token, 'username': user.username})
         except User_Base.DoesNotExist:
             raise exceptions.AuthenticationFailed(_('Invalid username/password.'))
+
+
+class MLViewSet(views.APIView):
+    def post(self, request, *args, **kwargs):
+        import numpy as np
+        model = settings.ML_MODEL
+        X = np.array([[0.7,1.,1.,1.,0.,1.,0.,1.,0.8]])
+        prediction = model.predict(X)
+        aa = prediction
+        print(prediction)
+        prediction = prediction + 0.1159
+        prediction = prediction / 0.0000036968
+        print("Earnings Prediction for Proposed Product - ${}".format(prediction))
+        return Response({'prediction': aa, 'result': prediction[0][0]})

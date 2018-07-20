@@ -1,5 +1,5 @@
 {
-	"stsServer":"http://localhost:5555",
+	"stsServer":"http://172.19.33.238:8080",
 	"redirect_url":"http://localhost:4200/authorized",
 	"client_id":"jeIdentityServerAdmin",
 	"response_type":"id_token token",

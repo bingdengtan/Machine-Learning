@@ -29,6 +29,7 @@ import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 import { RoleComponent } from './pages/role/role.component';
 import { UserComponent } from './pages/user/user.component';
+import { ModelComponent } from './pages/model/model.component';
 import { GridComponent } from './components/grid/grid.component';
 
 import { AuthService } from './services/auth.service';
@@ -61,7 +62,8 @@ export function loadConfig(oidcConfigService: OidcConfigService) {
     RoleComponent,
     UserComponent,
     GridComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    ModelComponent
   ],
   imports: [
     BrowserModule,

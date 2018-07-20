@@ -12,6 +12,7 @@ import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { RoleComponent } from './pages/role/role.component';
 import { UserComponent } from './pages/user/user.component';
+import { ModelComponent } from './pages/model/model.component';
 
 @NgModule({
   imports: [
@@ -24,6 +25,7 @@ import { UserComponent } from './pages/user/user.component';
       { path: 'dashboard', component: DashboardComponent,
         children: [
           { path: 'home', component: HomeComponent, canActivate: [AuthorizationGuard] },
+          { path: 'model', component: ModelComponent, canActivate: [AuthorizationGuard] },
           { path: 'roles', component: RoleComponent, canActivate: [AuthorizationGuard] },
           { path: 'users', component: UserComponent, canActivate: [AuthorizationGuard]}
         ]
