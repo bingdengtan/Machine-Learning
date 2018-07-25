@@ -3,7 +3,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 import { UserService } from '../../services/user.service';
-import { RoleService } from '../../services/role.service';
+import { ModelService } from '../../services/model.service';
+import { ProjectService } from '../../services/project.service';
 import { CoreUtils } from '../../utils/core.utils';
 import { GridColumn, GridMenu, GridComponent } from '../../components/grid/grid.component';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
@@ -12,7 +13,9 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 declare var $: any;
 
 interface IModel {
-  model_name: string;
+  name: string;
+  path: string;
+  project: any;
   description: string;
   creation_date: null;
   created_by: string;
@@ -33,15 +36,19 @@ export class ModelComponent implements OnInit {
   restUrl = '';
   gridColumns: any[] = new Array();
   gridActions: any[] = new Array();
-  funds: any[];
-  role: IModel = {model_name: '', description: '', creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
+  projects: any[] = new Array();
+  model: IModel = {name: '', path: '', project: null,
+    description: '', creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
 
   modalRef: BsModalRef;
   confirmDialogTitle: string;
   confirmDialogMessage: string;
 
+  projectSelectedId: string;
+
   constructor(public coreUtils: CoreUtils,
-    public roleService: RoleService,
+    public modelService: ModelService,
+    public projectService: ProjectService,
     private oidcSecurityService: OidcSecurityService,
     private toastr: ToastrService,
     private modalService: BsModalService
@@ -52,16 +59,18 @@ export class ModelComponent implements OnInit {
   ngOnInit() {
     window.dispatchEvent(new Event('resize'));
     this.initGrid();
+    this.initProjects();
   }
 
   menuActionNew(): void {
-    this.role = {model_name: '', description: '', creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
+    this.model = {name: '', path: '', project: null,
+      description: '', creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
     $('#myModal').modal('show');
   }
 
   save(): void {
     const $btn = $('#saveButton').button('loading');
-    this.roleService.save(this.role).then( response => {
+    this.modelService.save(this.model).then( response => {
       $btn.button('reset');
       if ($('#myModal').modal('hide')) {
         this.gridComponent.loadGrid(1);
@@ -79,7 +88,7 @@ export class ModelComponent implements OnInit {
         positionClass: 'toast-top-center'
       });
     } else {
-      this.role = JSON.parse(JSON.stringify(rows[0]));
+      this.model = JSON.parse(JSON.stringify(rows[0]));
       $('#myModal').modal('show');
     }
   }
@@ -108,7 +117,7 @@ export class ModelComponent implements OnInit {
   confirmDeletetion(): void {
     const selectedIds = this.gridComponent.getSelectedIds();
     selectedIds.forEach(async id => {
-      await this.roleService.delete(id).then( response => {
+      await this.modelService.delete(id).then( response => {
           this.toastr.success('Delete completed', '');
           this.gridComponent.loadGrid(1);
       }).catch(e => {
@@ -122,7 +131,8 @@ export class ModelComponent implements OnInit {
   }
 
   cellClickAction(row): void {
-    this.role = JSON.parse(JSON.stringify(row));
+    this.model = JSON.parse(JSON.stringify(row));
+    this.model['project'] = this.model['project'].id;
     $('#myModal').modal('show');
   }
 
@@ -130,17 +140,36 @@ export class ModelComponent implements OnInit {
     return this.coreUtils.getDateFormat(val);
   }
 
+  initProjects(): void {
+    this.projectService.list({pageNumber: 1, pageSize: 100, sortBy: 'name', orderBy: 'asc'}, {})
+    .then(projects => {
+      this.projects = projects.results.map(project => {
+        return {selected: false, id: project.id, name: project.name};
+      });
+    });
+  }
+
   initGrid(): void {
-    this.restUrl = this.roleService.restUrl;
+    this.restUrl = this.modelService.restUrl;
 
     let nameCol: GridColumn = {title: 'ID', filedName: 'id', width: null, columnFormat: null, display: false,
       click: null,
       sort: {enable: false, sortBy: null}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'Role Name', filedName: 'role_name', width: null, columnFormat: null, display: true,
+    nameCol = {title: 'Project', filedName: 'project.name', width: null, columnFormat: null, display: true,
+      click: null,
+      sort: {enable: false, sortBy: ''}};
+    this.gridColumns.push(nameCol);
+
+    nameCol = {title: 'Name', filedName: 'name', width: null, columnFormat: null, display: true,
       click: this.cellClickAction.bind(this),
-      sort: {enable: true, sortBy: 'role_name'}};
+      sort: {enable: true, sortBy: 'name'}};
+    this.gridColumns.push(nameCol);
+
+    nameCol = {title: 'Path', filedName: 'path', width: null, columnFormat: null, display: true,
+      click: null,
+      sort: {enable: false, sortBy: ''}};
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Description', filedName: 'description', width: null, columnFormat: null, display: true,
@@ -167,7 +196,7 @@ export class ModelComponent implements OnInit {
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Last Updated By', filedName: 'last_updated_by', width: null, columnFormat: null,
-      display: true,
+      display: false,
       click: null,
       sort: {enable: true, sortBy: 'last_updated_by'}};
     this.gridColumns.push(nameCol);

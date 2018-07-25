@@ -18,9 +18,9 @@
       [pageSize]=10 
       [pageSizes]="[10,20,50,100]" 
       [restUrl]="restUrl" 
-      [sortBy]="'model_name'" 
+      [sortBy]="'name'" 
       [orderBy]="'asc'"
-      [FTSearch]="{'show': true, 'placeholder': 'Model Name', 'forNames': ['model_name']}"
+      [FTSearch]="{'show': true, 'placeholder': 'Model Name', 'forNames': ['name']}"
       [selection]="{'show': true, 'multiple': true}"
     >   
     </app-grid>   
@@ -32,20 +32,34 @@
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">{{role.created_by!='' ? 'Edit Role' : 'New Role'}}</h4>
+          <h4 class="modal-title" id="myModalLabel">{{model.created_by!='' ? 'Edit Model' : 'New Model'}}</h4>
         </div>
         <div class="modal-body">
           <form #form="ngForm">
               <div class="row">
-                <div class="col-md-3"><label class="control-label">Role Name:</label></div>
+                <div class="col-md-3"><label class="control-label">Project:</label></div>
                 <div class="col-md-9">                    
-                    <input type="text" class="form-control" name="role.role_name" required [(ngModel)]="role.role_name">
+                    <select class='form-control' name="model.project" [(ngModel)]='model.project'>
+                        <option *ngFor='let project of projects' [value]="project.id">{{project.name}}</option>
+                    </select>
                 </div>
               </div>
               <div class="row">
+                <div class="col-md-3"><label class="control-label">Name:</label></div>
+                <div class="col-md-9">                    
+                    <input type="text" class="form-control" name="model.name" required [(ngModel)]="model.name">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3"><label class="control-label">Path:</label></div>
+                <div class="col-md-9">                    
+                    <input type="text" class="form-control" name="model.path" required [(ngModel)]="model.path">
+                </div>
+              </div>              
+              <div class="row">
                 <div class="col-md-3"><label class="control-label">Description:</label></div>
                 <div class="col-md-9">                    
-                    <textarea class="form-control" name="role.description" [(ngModel)]="role.description"></textarea>
+                    <textarea class="form-control" name="model.description" [(ngModel)]="model.description"></textarea>
                 </div>
               </div> 
           </form>

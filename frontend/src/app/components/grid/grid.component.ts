@@ -83,7 +83,17 @@ export class GridComponent implements OnInit {
   }
 
   getColumnValue(row: any, column: any): string {
-    let val = row[column.filedName];
+    const fieldsLoop = column.filedName.split('.');
+    let obj = JSON.parse(JSON.stringify(row));
+    let val = '';
+    for (let i = 0; i < fieldsLoop.length; i++) {
+      if (obj[fieldsLoop[i]]) {
+        val = obj[fieldsLoop[i]];
+        obj = val;
+      } else {
+        break;
+      }
+    }
     if (column.columnFormat) {
       val = column.columnFormat(row, val);
     }

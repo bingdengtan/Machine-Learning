@@ -1,7 +1,7 @@
 {
-	"stsServer":"http://172.19.33.238:8080",
+	"stsServer":"http://localhost:5555",
 	"redirect_url":"http://localhost:4200/authorized",
-	"client_id":"jeIdentityServerAdmin",
+	"client_id":"jeMachineLearning",
 	"response_type":"id_token token",
 	"scope":"openid profile",
 	"post_logout_redirect_uri":"http://localhost:4200",

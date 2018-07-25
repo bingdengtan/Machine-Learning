@@ -14,6 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 interface IUser {
   username: string;
   email: string;
+  id: null;
   roles: Array<string>;
   creation_date: null;
   created_by: string;
@@ -40,6 +41,7 @@ export class UserComponent implements OnInit {
   user: IUser = {
     username: '',
     email: '',
+    id: null,
     roles: [],
     creation_date: null,
     created_by: '',
@@ -52,7 +54,7 @@ export class UserComponent implements OnInit {
   confirmDialogMessage: string;
 
   constructor(private coreUtils: CoreUtils,
-    private userService: UserService,
+    private modelService: UserService,
     private roleService: RoleService,
     private toastr: ToastrService,
     private modalService: BsModalService
@@ -73,7 +75,8 @@ export class UserComponent implements OnInit {
 
   menuActionNew(): void {
     // this.roles.forEach(role => role['checked'] = false);
-    this.user = {username: '', email: '', roles: [], creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
+    this.user = {username: '', email: '', id: null, roles: [],
+      creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
     this.showModal();
   }
 
@@ -88,7 +91,7 @@ export class UserComponent implements OnInit {
     this.user.roles = userRoles;
 
     // this.user.roles = this.roles.filter(opt => opt.checked === true).map(opt => opt.id);
-    this.userService.save(this.user).then( response => {
+    this.modelService.save(this.user).then( response => {
       $btn.button('reset');
       if ($('#myModal').modal('hide')) {
         this.gridComponent.loadGrid(1);
@@ -136,7 +139,7 @@ export class UserComponent implements OnInit {
   confirmDeletetion(): void {
     const selectedIds = this.gridComponent.getSelectedIds();
     selectedIds.forEach(async id => {
-      await this.userService.delete(id).then( response => {
+      await this.modelService.delete(id).then( response => {
           this.toastr.success('Delete completed', '');
           this.gridComponent.loadGrid(1);
       }).catch(e => {
@@ -181,7 +184,7 @@ export class UserComponent implements OnInit {
   }
 
   private initGrid(): void {
-    this.restUrl = this.userService.restUrl;
+    this.restUrl = this.modelService.restUrl;
 
     let nameCol: GridColumn = {title: 'ID', filedName: 'id', width: null, columnFormat: null, display: false,
       click: null,

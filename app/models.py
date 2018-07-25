@@ -26,3 +26,24 @@ class User_Base(Document):
     last_updated_by = fields.StringField()
 
     roles = ListField(ReferenceField(Role_Base))
+
+
+class Project_Profile(Document):
+    name = fields.StringField(required=True, unique=True)
+    description = fields.StringField(required=False, null=True)
+    creation_date = fields.DateTimeField(default=timezone.now(), null=True)
+    created_by = fields.StringField()
+    last_updated_date = fields.DateTimeField(default=timezone.now(), null=True)
+    last_updated_by = fields.StringField()   
+
+
+class Model_Profile(Document):
+    name = fields.StringField(required=True, unique=True)
+    path = fields.StringField(required=True)
+    description = fields.StringField(required=False, null=True)
+    creation_date = fields.DateTimeField(default=timezone.now(), null=True)
+    created_by = fields.StringField()
+    last_updated_date = fields.DateTimeField(default=timezone.now(), null=True)
+    last_updated_by = fields.StringField()
+
+    project = ReferenceField(Project_Profile)

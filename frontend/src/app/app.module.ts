@@ -33,14 +33,18 @@ import { ModelComponent } from './pages/model/model.component';
 import { GridComponent } from './components/grid/grid.component';
 
 import { AuthService } from './services/auth.service';
+import { BasicModelService } from './services/basic.model.service';
 import { UserService } from './services/user.service';
 import { RoleService } from './services/role.service';
+import { ProjectService } from './services/project.service';
+import { ModelService } from './services/model.service';
 import { EventsService } from './services/events.service';
 import { CoreService } from './services/core.service';
 import { CoreUtils } from './utils/core.utils';
 import { AuthorizationGuard } from './services/authorization.guard';
 import { AuthInterceptor } from './services/authInterceptor.service';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { ProjectComponent } from './pages/project/project.component';
 
 export function loadConfig(oidcConfigService: OidcConfigService) {
   return () => oidcConfigService.load(`${window.location.origin}/assets/data/oidc.config${environment.production ? '.prod' : ''}.json`);
@@ -63,7 +67,8 @@ export function loadConfig(oidcConfigService: OidcConfigService) {
     UserComponent,
     GridComponent,
     ConfirmDialogComponent,
-    ModelComponent
+    ModelComponent,
+    ProjectComponent
   ],
   imports: [
     BrowserModule,
@@ -83,6 +88,8 @@ export function loadConfig(oidcConfigService: OidcConfigService) {
     RoleService,
     AuthorizationGuard,
     UserService,
+    ProjectService,
+    ModelService,
     CoreUtils,
     EventsService,
     {
