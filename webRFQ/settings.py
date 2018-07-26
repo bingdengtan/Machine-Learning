@@ -183,13 +183,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(os.path.join(BASE_DIR, 'frontend/dist')),
+    os.path.join(os.path.join(BASE_DIR, 'frontend/dist/client')),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 # Below is application settings
-
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -214,6 +213,6 @@ ML_MODEL = load_model(ML_MODELS_ROOT + '\\trained_model.h5')
 import numpy as np
 X = np.array([[1,1,1,1.,1.,1.,1.,1.,1]])
 prediction = ML_MODEL.predict(X)
-prediction = prediction + 0.1159
-prediction = prediction / 0.0000036968
-print("Earnings Prediction for Proposed Product - ${}".format(prediction))
+# prediction = prediction + 0.1159
+# prediction = prediction / 0.0000036968
+# print("Earnings Prediction for Proposed Product - ${}".format(prediction))

@@ -18,20 +18,20 @@ import { ProjectComponent } from './pages/project/project.component';
 @NgModule({
   imports: [
     RouterModule.forRoot([
-      { path: '', redirectTo: 'starter', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard/home', pathMatch: 'full' },
       { path: 'starter', component: StarterComponent},
       { path: 'authorized', component: AuthorizedComponent},
       { path: 'unauthorized', component: UnauthorizedComponent },
       { path: 'forbidden', component: ForbiddenComponent },
       { path: 'dashboard', component: DashboardComponent,
         children: [
-          { path: 'home', component: HomeComponent, canActivate: [AuthorizationGuard] },
-          { path: 'adm/project', component: ProjectComponent, canActivate: [AuthorizationGuard] },
-          { path: 'adm/model', component: ModelComponent, canActivate: [AuthorizationGuard] },
-          { path: 'adm/input', component: ModelComponent, canActivate: [AuthorizationGuard] },
-          { path: 'adm/output', component: ModelComponent, canActivate: [AuthorizationGuard] },
-          { path: 'adm/roles', component: RoleComponent, canActivate: [AuthorizationGuard] },
-          { path: 'adm/users', component: UserComponent, canActivate: [AuthorizationGuard]}
+          { path: 'home', component: HomeComponent},
+          { path: 'adm/project', component: ProjectComponent},
+          { path: 'adm/model', component: ModelComponent},
+          { path: 'adm/input', component: ModelComponent},
+          { path: 'adm/output', component: ModelComponent},
+          { path: 'adm/roles', component: RoleComponent},
+          { path: 'adm/users', component: UserComponent}
         ]
       }
     ])

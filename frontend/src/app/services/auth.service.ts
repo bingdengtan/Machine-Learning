@@ -14,7 +14,7 @@ import { OidcSecurityService, AuthWellKnownEndpoints, OidcConfigService } from '
         private oidcConfigService: OidcConfigService
     ) {
         this.hasStorage = typeof Storage !== 'undefined';
-        this.authWellKnownEndpoints.setWellKnownEndpoints(this.oidcConfigService.wellKnownEndpoints);
+        // this.authWellKnownEndpoints.setWellKnownEndpoints(this.oidcConfigService.wellKnownEndpoints);
     }
 
     /**
