@@ -203,7 +203,7 @@ REST_FRAMEWORK = {
 # Authentication via identity server
 JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-    'JWKS_URL': 'http://172.19.33.238:8080/.well-known/openid-configuration/jwks'
+    'JWKS_URL': 'http://localhost:5555/.well-known/openid-configuration/jwks'
 }
 
 JWT_EXPIRATION_DELTA = datetime.timedelta(days=7)

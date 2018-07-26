@@ -20,7 +20,6 @@ import { AppControlSidebarComponent } from './components/app-control-sidebar/app
 import { HomeComponent } from './pages/home/home.component';
 import { UnauthorizedComponent } from './pages/unauthorized/unauthorized.component';
 import { StarterComponent } from './pages/starter/starter.component';
-import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 import { RoleComponent } from './pages/role/role.component';
 import { UserComponent } from './pages/user/user.component';
@@ -52,7 +51,6 @@ import { ProjectComponent } from './pages/project/project.component';
     HomeComponent,
     UnauthorizedComponent,
     StarterComponent,
-    AuthorizedComponent,
     ForbiddenComponent,
     RoleComponent,
     UserComponent,

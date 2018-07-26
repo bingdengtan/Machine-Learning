@@ -3,6 +3,10 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { EventEmitter } from 'events';
 
+import { OAuthService } from 'angular-oauth2-oidc';
+import { JwksValidationHandler } from 'angular-oauth2-oidc';
+import { authConfig } from './utils/auth.config';
+
 import { CoreService } from './services/core.service';
 
 import { AuthService } from './services/auth.service';
@@ -22,16 +26,19 @@ export class AppComponent implements OnInit  {
         private authService: AuthService,
         private eventsService: EventsService,
         private titleService: Title,
-        private coreService: CoreService
+        private coreService: CoreService,
+        private oauthService: OAuthService
     ) {
+        this.configureWithNewConfigApi();
+    }
+
+    ngOnInit() {
 
     }
 
-    ngOnInit(): void {
-
-    }
-
-    private doCallbackLogicIfRequired(): void {
-
+    private configureWithNewConfigApi() {
+        this.oauthService.configure(authConfig);
+        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+        this.oauthService.loadDiscoveryDocumentAndTryLogin();
     }
 }

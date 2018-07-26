@@ -9,11 +9,12 @@ import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http/src/response';
 import { Router } from '@angular/router';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-    constructor(private injector: Injector, private router: Router) {
+    constructor(private injector: Injector, private router: Router, private oauthService: OAuthService) {
     }
 
     private handleAuthError(err: HttpErrorResponse): Observable<any> {
@@ -27,7 +28,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         let requestToForward = req;
-        const tokenValue = 'Bearer ' + 'token';
+        const tokenValue = 'Bearer ' + this.oauthService.getAccessToken();
         requestToForward = req.clone({ setHeaders: { 'Authorization': tokenValue} });
 
         return next.handle(requestToForward).catch( err => this.handleAuthError(err));

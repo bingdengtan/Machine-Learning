@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Component({
   selector: 'app-starter',
@@ -11,14 +12,14 @@ import { map } from 'rxjs/operators';
 export class StarterComponent implements OnInit {
   isAuthorized = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private oauthService: OAuthService) {
   }
 
   ngOnInit() {
-    this.checkLogin();
-  }
-
-  checkLogin(): void {
-
+    if (!this.oauthService.getAccessToken()) {
+      this.oauthService.initImplicitFlow();
+    } else {
+      this.router.navigate(['dashboard/home']);
+    }
   }
 }
