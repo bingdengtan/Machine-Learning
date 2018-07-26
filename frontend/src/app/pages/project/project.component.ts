@@ -5,7 +5,6 @@ import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ProjectService } from '../../services/project.service';
 import { CoreUtils } from '../../utils/core.utils';
 import { GridColumn, GridMenu, GridComponent } from '../../components/grid/grid.component';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 declare var $: any;
@@ -40,7 +39,6 @@ export class ProjectComponent implements OnInit {
 
   constructor(public coreUtils: CoreUtils,
     public projectService: ProjectService,
-    private oidcSecurityService: OidcSecurityService,
     private toastr: ToastrService,
     private modalService: BsModalService,
     private modelService: ProjectService

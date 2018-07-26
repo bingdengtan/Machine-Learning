@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { Title } from '@angular/platform-browser';
 
@@ -10,7 +9,7 @@ import { Title } from '@angular/platform-browser';
 })
 export class UnauthorizedComponent implements OnInit {
 
-  constructor(private oidcSecurityService: OidcSecurityService, private titleService: Title) {
+  constructor(private titleService: Title) {
 
   }
 
@@ -19,6 +18,5 @@ export class UnauthorizedComponent implements OnInit {
   }
 
   login() {
-    this.oidcSecurityService.authorize();
   }
 }

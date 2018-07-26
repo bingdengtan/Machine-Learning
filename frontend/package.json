@@ -25,7 +25,7 @@
     "admin-lte": "^2.3.11",
     "agenda": "^1.0.3",
     "ajv": "^6.5.0",
-    "angular-auth-oidc-client": "^6.0.1",
+    "angular-oauth2-oidc": "^4.0.2",
     "arrive": "^2.4.1",
     "bootstrap": "^3.3.7",
     "bootstrap-material-design": "^4.1.1",

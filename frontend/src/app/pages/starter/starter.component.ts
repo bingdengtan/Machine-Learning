@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
@@ -12,7 +11,7 @@ import { map } from 'rxjs/operators';
 export class StarterComponent implements OnInit {
   isAuthorized = false;
 
-  constructor(private router: Router, private oidcSecurityService: OidcSecurityService) {
+  constructor(private router: Router) {
   }
 
   ngOnInit() {
@@ -20,6 +19,6 @@ export class StarterComponent implements OnInit {
   }
 
   checkLogin(): void {
-    this.oidcSecurityService.authorize();
+
   }
 }

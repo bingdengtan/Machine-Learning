@@ -1,17 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
-import { OidcSecurityService, AuthWellKnownEndpoints, OidcConfigService } from 'angular-auth-oidc-client';
-
 @Injectable() export class AuthService {
 
     private hasStorage: boolean;
 
     constructor(
-        private http: HttpClient,
-        private oidcSecurityService: OidcSecurityService,
-        private authWellKnownEndpoints: AuthWellKnownEndpoints,
-        private oidcConfigService: OidcConfigService
+        private http: HttpClient
     ) {
         this.hasStorage = typeof Storage !== 'undefined';
         // this.authWellKnownEndpoints.setWellKnownEndpoints(this.oidcConfigService.wellKnownEndpoints);
@@ -42,7 +37,7 @@ import { OidcSecurityService, AuthWellKnownEndpoints, OidcConfigService } from '
         let headers: HttpHeaders = new HttpHeaders().set('Content-Type', 'application/json');
         headers = headers.append('Accept', 'application/json');
 
-        const token: string = this.oidcSecurityService.getToken();
+        const token = '';
         if (token !== '') {
             const tokenValue: string = 'Bearer ' + token;
             headers = headers.append('Authorization', tokenValue);
@@ -51,22 +46,7 @@ import { OidcSecurityService, AuthWellKnownEndpoints, OidcConfigService } from '
     }
 
     public revokeToken(): void {
-        const token: string = this.oidcSecurityService.getToken();
-        if (token !== '') {
-            const revocationEndpoint: string = this.authWellKnownEndpoints.revocation_endpoint;
 
-            const headers: HttpHeaders = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
-            const params: any = {
-                token: token,
-                token_type_hint: 'access_token',
-                client_secret: 'johnsonelectr!cdotcom',
-                client_id: 'jeIdentityServerAdmin'
-            };
-
-            const body: string = this.encodeParams(params);
-            this.http.post(revocationEndpoint, body, { headers: headers })
-                .subscribe();
-        }
     }
 
     private encodeParams(params: any): string {

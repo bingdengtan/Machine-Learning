@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import 'rxjs/Rx';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { forEach } from '@angular/router/src/utils/collection';
 import { encode } from 'punycode';
 
@@ -71,8 +70,7 @@ export class GridComponent implements OnInit {
   searchTerm: FormControl;
   loading = false;
 
-  constructor(public http: HttpClient,
-    public oidcSecurityService: OidcSecurityService) {
+  constructor(public http: HttpClient) {
     this.searchTerm = new FormControl();
   }
 

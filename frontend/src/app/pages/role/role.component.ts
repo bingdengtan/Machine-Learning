@@ -6,7 +6,6 @@ import { UserService } from '../../services/user.service';
 import { RoleService } from '../../services/role.service';
 import { CoreUtils } from '../../utils/core.utils';
 import { GridColumn, GridMenu, GridComponent } from '../../components/grid/grid.component';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 declare var $: any;
@@ -42,7 +41,6 @@ export class RoleComponent implements OnInit {
 
   constructor(public coreUtils: CoreUtils,
     public modelService: RoleService,
-    private oidcSecurityService: OidcSecurityService,
     private toastr: ToastrService,
     private modalService: BsModalService
   ) {
