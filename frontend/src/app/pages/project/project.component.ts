@@ -47,7 +47,7 @@ export class ProjectComponent implements OnInit {
   }
 
   ngOnInit() {
-    window.dispatchEvent(new Event('resize'));
+    this.coreUtils.resizeWindow();
     this.initGrid();
   }
 

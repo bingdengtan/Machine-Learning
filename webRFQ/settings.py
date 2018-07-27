@@ -79,6 +79,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'webRFQ.wsgi.application'
 
+# Allow all hosts.
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases

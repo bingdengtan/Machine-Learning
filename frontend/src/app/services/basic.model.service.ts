@@ -39,7 +39,7 @@ export class BasicModelService {
 
   async delete(id: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.http.delete(this.restUrl + id, {})
+      this.http.delete(this.restUrl + id + '/', {})
         .toPromise()
         .then( response => {
           resolve(response);
