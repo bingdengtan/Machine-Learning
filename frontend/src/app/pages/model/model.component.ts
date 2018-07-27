@@ -2,20 +2,20 @@ import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
-declare var $: any;
-
 import { UserService } from '../../services/user.service';
-import { RoleService } from '../../services/role.service';
+import { ModelService } from '../../services/model.service';
+import { ProjectService } from '../../services/project.service';
 import { CoreUtils } from '../../utils/core.utils';
 import { GridColumn, GridMenu, GridComponent } from '../../components/grid/grid.component';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { ToastrService } from 'ngx-toastr';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+declare var $: any;
 
-interface IUser {
-  username: string;
-  email: string;
-  id: null;
-  roles: Array<string>;
+interface IModel {
+  name: string;
+  path: string;
+  project: any;
+  description: string;
   creation_date: null;
   created_by: string;
   last_updated_date: null;
@@ -23,79 +23,55 @@ interface IUser {
 }
 
 @Component({
-  selector: 'app-user',
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.scss']
+  selector: 'app-model',
+  templateUrl: './model.component.html',
+  styleUrls: ['./model.component.scss']
 })
-export class UserComponent implements OnInit {
+export class ModelComponent implements OnInit {
   @ViewChild(GridComponent) gridComponent: GridComponent;
   @ViewChild(ConfirmDialogComponent) confirmDialog: ConfirmDialogComponent;
-  title = 'Users Management';
+
+  title = 'Model Profile';
   restUrl = '';
   gridColumns: any[] = new Array();
   gridActions: any[] = new Array();
-
-  roles: any[] = new Array();
-  assignedRoles: any[] = new Array();
-
-  user: IUser = {
-    username: '',
-    email: '',
-    id: null,
-    roles: [],
-    creation_date: null,
-    created_by: '',
-    last_updated_date: null,
-    last_updated_by: ''
-  };
+  projects: any[] = new Array();
+  model: IModel = {name: '', path: '', project: null,
+    description: '', creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
 
   modalRef: BsModalRef;
   confirmDialogTitle: string;
   confirmDialogMessage: string;
 
-  constructor(private coreUtils: CoreUtils,
-    private modelService: UserService,
-    private roleService: RoleService,
+  projectSelectedId: string;
+
+  constructor(public coreUtils: CoreUtils,
+    public modelService: ModelService,
+    public projectService: ProjectService,
     private toastr: ToastrService,
     private modalService: BsModalService
   ) {
-    this.confirmDialogTitle = 'User Management';
+    this.confirmDialogTitle = 'Roles Management';
   }
 
   ngOnInit() {
     this.coreUtils.resizeWindow();
     this.initGrid();
-    this.initRoles();
-  }
-
-  showModal(): void {
-    this.initCheckRoles();
-    $('#myModal').modal('show');
+    this.initProjects();
   }
 
   menuActionNew(): void {
-    // this.roles.forEach(role => role['checked'] = false);
-    this.user = {username: '', email: '', id: null, roles: [],
-      creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
-    this.showModal();
+    this.model = {name: '', path: '', project: null,
+      description: '', creation_date: null, created_by: '', last_updated_date: null, last_updated_by: ''};
+    $('#myModal').modal('show');
   }
 
   save(): void {
     const $btn = $('#saveButton').button('loading');
-
-    const roleCheckedObjects = $('input[name="roles"]:checked');
-    const userRoles = [];
-    for (const role of roleCheckedObjects) {
-      userRoles.push(role.value);
-    }
-    this.user.roles = userRoles;
-
-    // this.user.roles = this.roles.filter(opt => opt.checked === true).map(opt => opt.id);
-    this.modelService.save(this.user).then( response => {
+    this.modelService.save(this.model).then( response => {
       $btn.button('reset');
       if ($('#myModal').modal('hide')) {
         this.gridComponent.loadGrid(1);
-        // this.roles.forEach(role => role.checked = false);
       }
     }).catch(e => {
       $btn.button('reset');
@@ -110,8 +86,8 @@ export class UserComponent implements OnInit {
         positionClass: 'toast-top-center'
       });
     } else {
-      this.user = JSON.parse(JSON.stringify(rows[0]));
-      this.showModal();
+      this.model = JSON.parse(JSON.stringify(rows[0]));
+      $('#myModal').modal('show');
     }
   }
 
@@ -148,42 +124,30 @@ export class UserComponent implements OnInit {
     });
   }
 
-  cellClickAction(row): void {
-    this.user = JSON.parse(JSON.stringify(row));
-    this.showModal();
+  closeConfirmDialog(): void {
+    this.modalRef.hide();
   }
 
-  initCheckRoles(): void {
-    const roleObjects = $('input[name="roles"]');
-    if (this.user.roles.length <= 0) {
-      for (const role of roleObjects) {
-        role.checked = false;
-      }
-    } else {
-      const roleIds = this.user.roles.map(x => '' + x);
-      for (const role of roleObjects) {
-        role.checked = roleIds.indexOf(role.value) > -1;
-      }
-    }
+  cellClickAction(row): void {
+    this.model = JSON.parse(JSON.stringify(row));
+    this.model['project'] = this.model['project'].id;
+    $('#myModal').modal('show');
   }
 
   getDateFormat(row, val): String {
     return this.coreUtils.getDateFormat(val);
   }
 
-  getActiveFormat(row, val): String {
-    return val ? 'Yes' : '';
+  initProjects(): void {
+    this.projectService.list({pageNumber: 1, pageSize: 100, sortBy: 'name', orderBy: 'asc'}, {})
+    .then(projects => {
+      this.projects = projects.results.map(project => {
+        return {selected: false, id: project.id, name: project.name};
+      });
+    });
   }
 
-  getRolesFormat(row, val): String {
-    if (val.length > 0) {
-      const roles = this.roles.filter( (role) => val.indexOf(role.id) >= 0);
-      return roles.map( role => role.role_name).join(', ');
-    }
-    return '';
-  }
-
-  private initGrid(): void {
+  initGrid(): void {
     this.restUrl = this.modelService.restUrl;
 
     let nameCol: GridColumn = {title: 'ID', filedName: 'id', width: null, columnFormat: null, display: false,
@@ -191,24 +155,24 @@ export class UserComponent implements OnInit {
       sort: {enable: false, sortBy: null}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'User Name', filedName: 'username', width: null, columnFormat: null, display: true,
+    nameCol = {title: 'Project', filedName: 'project.name', width: null, columnFormat: null, display: true,
+      click: null,
+      sort: {enable: false, sortBy: ''}};
+    this.gridColumns.push(nameCol);
+
+    nameCol = {title: 'Name', filedName: 'name', width: null, columnFormat: null, display: true,
       click: this.cellClickAction.bind(this),
-      sort: {enable: true, sortBy: 'username'}};
+      sort: {enable: true, sortBy: 'name'}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'Email', filedName: 'email', width: null, columnFormat: null, display: true,
+    nameCol = {title: 'Path', filedName: 'path', width: null, columnFormat: null, display: true,
       click: null,
-      sort: {enable: true, sortBy: 'email'}};
+      sort: {enable: false, sortBy: ''}};
     this.gridColumns.push(nameCol);
 
-    nameCol = {title: 'Roles', filedName: 'roles', width: null, columnFormat: this.getRolesFormat.bind(this), display: true,
+    nameCol = {title: 'Description', filedName: 'description', width: null, columnFormat: null, display: true,
       click: null,
-      sort: {enable: false, sortBy: null}};
-    this.gridColumns.push(nameCol);
-
-    nameCol = {title: 'Active', filedName: 'is_active', width: null, columnFormat: this.getActiveFormat.bind(this), display: true,
-      click: null,
-      sort: {enable: true, sortBy: 'is_active'}};
+      sort: {enable: false, sortBy: ''}};
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Creation Date', filedName: 'creation_date', width: null, columnFormat: this.getDateFormat.bind(this),
@@ -230,7 +194,7 @@ export class UserComponent implements OnInit {
     this.gridColumns.push(nameCol);
 
     nameCol = {title: 'Last Updated By', filedName: 'last_updated_by', width: null, columnFormat: null,
-      display: true,
+      display: false,
       click: null,
       sort: {enable: true, sortBy: 'last_updated_by'}};
     this.gridColumns.push(nameCol);
@@ -252,14 +216,5 @@ export class UserComponent implements OnInit {
     // gridMenu = {title: 'More', aClass: 'btn-primary', faIcon: 'fa fa-trash',
     //   action: null, subMenus: [{title: 'More 1', action: this.menuActionDelete}, {title: 'More 2', action: this.menuActionDelete}]};
     // this.gridActions.push(gridMenu);
-  }
-
-  private initRoles(): void {
-    this.roleService.list({pageNumber: 1, pageSize: 100, sortBy: 'role_name', orderBy: 'asc'}, {})
-      .then(roles => {
-        this.roles = roles.results.map(role => {
-          return {checked: false, id: role.id, role_name: role.role_name};
-        });
-      });
   }
 }

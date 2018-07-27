@@ -14,10 +14,10 @@ import os
 import datetime
 import sys
 import mongoengine
+from keras.models import load_model
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -79,6 +79,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'webRFQ.wsgi.application'
 
+# Allow all hosts.
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -101,15 +103,15 @@ DATABASES = {
 # We define 2 Mongo databases - default and test
 MONGODB_DATABASES = {
     "default": {
-        "name": "webRFQ",
-        "host": "localhost",
+        "name": "ML",
+        "host": "172.19.33.239",
         "port": 27017,
         "tz_aware": True,  # if you use timezones in django (USE_TZ = True)
     },
 
     "test": {
-        "name": "test_project",
-        "host": "localhost",
+        "name": "ML",
+        "host": "172.19.33.239",
         "port": 27017,
         "tz_aware": True,  # if you use timezones in django (USE_TZ = True)
     }
@@ -136,13 +138,13 @@ else:
 # note that this connection syntax is correct for mongoengine0.9-, but mongoengine0.10+ introduced slight changes
 
 mongoengine.register_connection(
-    'webRFQ',
+    'ML',
     name=MONGODB_DATABASES[db]['name'],
     host=MONGODB_DATABASES[db]['host'],
     port=MONGODB_DATABASES[db]['port']
 )
 
-mongoengine.connect('webRFQ')
+mongoengine.connect('ML', host='172.19.33.239', port=27017)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -183,13 +185,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(os.path.join(BASE_DIR, 'frontend/dist')),
+    os.path.join(os.path.join(BASE_DIR, 'frontend/dist/client')),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 # Below is application settings
-
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
@@ -208,3 +209,12 @@ JWT_AUTH = {
 }
 
 JWT_EXPIRATION_DELTA = datetime.timedelta(days=7)
+
+ML_MODELS_ROOT = os.path.join(BASE_DIR, 'ml_models')
+ML_MODEL = load_model(ML_MODELS_ROOT + '\\trained_model.h5')
+import numpy as np
+X = np.array([[1,1,1,1.,1.,1.,1.,1.,1]])
+prediction = ML_MODEL.predict(X)
+# prediction = prediction + 0.1159
+# prediction = prediction / 0.0000036968
+# print("Earnings Prediction for Proposed Product - ${}".format(prediction))

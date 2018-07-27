@@ -3,14 +3,18 @@
         {
           "header":"Navigator",
           "items":[
-            {"title":"Clients", "path":"dashboard/home", "description":"Clients", "icon":"fa fa-book"}
+            {"title":"Home", "path":"dashboard/home", "description":"Clients", "icon":"fa fa-home"}
           ]
         },
         {
           "header":"Administrator",
           "items":[
-            {"title":"Roles Management", "path":"dashboard/roles", "description":"Roles Management", "icon":"fa fa-credit-card"},
-            {"title":"Users Management", "path":"dashboard/users", "description":"Users Management", "icon":"fa fa-users"}
+            {"title":"Project Profile", "path":"dashboard/adm/project", "description":"Project Profiles", "icon":"fa fa-list"},
+            {"title":"Model Profile", "path":"dashboard/adm/model", "description":"Model Profiles", "icon":"fa fa-maxcdn"},
+            {"title":"Input Profile", "path":"dashboard/adm/input", "description":"Input Profiles", "icon":"fa fa-keyboard-o"},
+            {"title":"Output Profile", "path":"dashboard/adm/output", "description":"Output Profiles", "icon":"fa fa-share-square-o"},
+            {"title":"Roles Management", "path":"dashboard/adm/roles", "description":"Roles Management", "icon":"fa fa-credit-card"},
+            {"title":"Users Management", "path":"dashboard/adm/users", "description":"Users Management", "icon":"fa fa-users"}
           ]
         }
     ]

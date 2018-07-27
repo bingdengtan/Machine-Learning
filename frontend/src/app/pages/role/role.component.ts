@@ -6,7 +6,6 @@ import { UserService } from '../../services/user.service';
 import { RoleService } from '../../services/role.service';
 import { CoreUtils } from '../../utils/core.utils';
 import { GridColumn, GridMenu, GridComponent } from '../../components/grid/grid.component';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { ToastrService } from 'ngx-toastr';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 declare var $: any;
@@ -41,8 +40,7 @@ export class RoleComponent implements OnInit {
   confirmDialogMessage: string;
 
   constructor(public coreUtils: CoreUtils,
-    public roleService: RoleService,
-    private oidcSecurityService: OidcSecurityService,
+    public modelService: RoleService,
     private toastr: ToastrService,
     private modalService: BsModalService
   ) {
@@ -50,7 +48,7 @@ export class RoleComponent implements OnInit {
   }
 
   ngOnInit() {
-    window.dispatchEvent(new Event('resize'));
+    this.coreUtils.resizeWindow();
     this.initGrid();
   }
 
@@ -61,7 +59,7 @@ export class RoleComponent implements OnInit {
 
   save(): void {
     const $btn = $('#saveButton').button('loading');
-    this.roleService.save(this.role).then( response => {
+    this.modelService.save(this.role).then( response => {
       $btn.button('reset');
       if ($('#myModal').modal('hide')) {
         this.gridComponent.loadGrid(1);
@@ -108,7 +106,7 @@ export class RoleComponent implements OnInit {
   confirmDeletetion(): void {
     const selectedIds = this.gridComponent.getSelectedIds();
     selectedIds.forEach(async id => {
-      await this.roleService.delete(id).then( response => {
+      await this.modelService.delete(id).then( response => {
           this.toastr.success('Delete completed', '');
           this.gridComponent.loadGrid(1);
       }).catch(e => {
@@ -131,7 +129,7 @@ export class RoleComponent implements OnInit {
   }
 
   initGrid(): void {
-    this.restUrl = this.roleService.restUrl;
+    this.restUrl = this.modelService.restUrl;
 
     let nameCol: GridColumn = {title: 'ID', filedName: 'id', width: null, columnFormat: null, display: false,
       click: null,

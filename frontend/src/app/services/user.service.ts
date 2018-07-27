@@ -1,64 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import 'rxjs/Rx';
 
 import { CoreUtils } from '../utils/core.utils';
+import { BasicModelService } from './basic.model.service';
 
 @Injectable()
-export class UserService {
-  restUrl = 'user/';
+export class UserService extends BasicModelService {
   constructor(public http: HttpClient, public coreUtils: CoreUtils) {
-      this.restUrl = environment.api + this.restUrl;
-  }
-
-  getUsers(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.http.post(this.restUrl + '/list', null)
-        .toPromise()
-        .then( response => {
-          resolve(response);
-        })
-        .catch(e => {
-          reject(e);
-        });
-    });
-  }
-
-  save(user: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (user.id) {
-        this.http.put(this.restUrl + user.id + '/', user)
-          .toPromise()
-          .then( response => {
-            resolve(response);
-          })
-          .catch(e => {
-            reject(e);
-          });
-      } else {
-        this.http.post(this.restUrl, user)
-        .toPromise()
-        .then( response => {
-          resolve(response);
-        })
-        .catch(e => {
-          reject(e);
-        });
-      }
-    });
-  }
-
-  async delete(id: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.http.delete(this.restUrl + id)
-        .toPromise()
-        .then( response => {
-          resolve(response);
-        })
-        .catch(e => {
-          reject(e);
-        });
-    });
+    super(http, coreUtils);
+    this.restUrl = environment.api + 'adm/user/';
   }
 }

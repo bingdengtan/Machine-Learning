@@ -7,15 +7,14 @@ import {
 } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { HttpErrorResponse } from '@angular/common/http/src/response';
 import { Router } from '@angular/router';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-    private oidcSecurityService: OidcSecurityService;
 
-    constructor(private injector: Injector, private router: Router) {
+    constructor(private injector: Injector, private router: Router, private oauthService: OAuthService) {
     }
 
     private handleAuthError(err: HttpErrorResponse): Observable<any> {
@@ -29,18 +28,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         let requestToForward = req;
-        if (this.oidcSecurityService === undefined) {
-            this.oidcSecurityService = this.injector.get(OidcSecurityService);
-        }
-        if (this.oidcSecurityService !== undefined) {
-            const token = this.oidcSecurityService.getToken();
-            if (token !== '') {
-                const tokenValue = 'Bearer ' + token;
-                requestToForward = req.clone({ setHeaders: { 'Authorization': tokenValue} });
-            }
-        } else {
-            console.log('OidcSecurityService undefined: NO auth header!');
-        }
+        const tokenValue = 'Bearer ' + this.oauthService.getAccessToken();
+        requestToForward = req.clone({ setHeaders: { 'Authorization': tokenValue, 'Accept': '*/*'} });
 
         return next.handle(requestToForward).catch( err => this.handleAuthError(err));
     }

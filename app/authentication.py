@@ -56,7 +56,7 @@ class IdentityTokenAuthentication(BaseAuthentication):
                 return '', 'Signature Decode Failed.'
             except jwt.ExpiredSignature:
                 return '', 'Expired Signature.'
-        return '', 'Invalid basic header. No credentials provided.'
+        return '', 'Invalid header. No credentials provided.'
 
     def get_authorization_token(self):
         auth = get_authorization_header(self.request).decode(HTTP_HEADER_ENCODING).split()

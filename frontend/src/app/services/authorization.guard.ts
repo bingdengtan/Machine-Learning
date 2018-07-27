@@ -2,29 +2,21 @@ import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { OAuthService } from 'angular-oauth2-oidc';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
 
     constructor(
         private router: Router,
-        private oidcSecurityService: OidcSecurityService
+        private oauthService: OAuthService
     ) { }
 
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | boolean {
-        return this.oidcSecurityService.getIsAuthorized().pipe(
-            map((isAuthorized: boolean) => {
-                console.log('AuthorizationGuard, canActivate isAuthorized: ' + isAuthorized);
-
-                if (isAuthorized) {
-                    return true;
-                }
-
-                this.router.navigate(['/unauthorized']);
-                return false;
-            })
-        );
+        const claims = this.oauthService.getIdentityClaims();
+        if (!claims) {
+            this.router.navigate(['unauthorized']);
+        }
+        return true;
     }
 }

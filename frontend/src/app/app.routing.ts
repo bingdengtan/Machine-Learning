@@ -9,23 +9,27 @@ import { HomeComponent } from './pages/home/home.component';
 import { UnauthorizedComponent } from './pages/unauthorized/unauthorized.component';
 import { StarterComponent } from './pages/starter/starter.component';
 import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
-import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { RoleComponent } from './pages/role/role.component';
 import { UserComponent } from './pages/user/user.component';
+import { ModelComponent } from './pages/model/model.component';
+import { ProjectComponent } from './pages/project/project.component';
 
 @NgModule({
   imports: [
     RouterModule.forRoot([
       { path: '', redirectTo: 'starter', pathMatch: 'full' },
       { path: 'starter', component: StarterComponent},
-      { path: 'authorized', component: AuthorizedComponent},
       { path: 'unauthorized', component: UnauthorizedComponent },
       { path: 'forbidden', component: ForbiddenComponent },
       { path: 'dashboard', component: DashboardComponent,
         children: [
-          { path: 'home', component: HomeComponent, canActivate: [AuthorizationGuard] },
-          { path: 'roles', component: RoleComponent, canActivate: [AuthorizationGuard] },
-          { path: 'users', component: UserComponent, canActivate: [AuthorizationGuard]}
+          { path: 'home', component: HomeComponent},
+          { path: 'adm/project', component: ProjectComponent},
+          { path: 'adm/model', component: ModelComponent},
+          { path: 'adm/input', component: ModelComponent},
+          { path: 'adm/output', component: ModelComponent},
+          { path: 'adm/roles', component: RoleComponent},
+          { path: 'adm/users', component: UserComponent}
         ]
       }
     ])

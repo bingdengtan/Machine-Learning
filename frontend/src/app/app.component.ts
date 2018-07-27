@@ -3,12 +3,11 @@ import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { EventEmitter } from 'events';
 
-import { CoreService } from './services/core.service';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { JwksValidationHandler } from 'angular-oauth2-oidc';
+import { authConfig } from './utils/auth.config';
 
-import {
-    OidcSecurityService,
-    AuthorizationResult
-} from 'angular-auth-oidc-client';
+import { CoreService } from './services/core.service';
 
 import { AuthService } from './services/auth.service';
 import { EventsService } from './services/events.service';
@@ -24,43 +23,22 @@ export class AppComponent implements OnInit  {
     userData: any;
 
     constructor(
-        private oidcSecurityService: OidcSecurityService,
         private authService: AuthService,
         private eventsService: EventsService,
         private titleService: Title,
-        private coreService: CoreService
+        private coreService: CoreService,
+        private oauthService: OAuthService
     ) {
-        this.coreService.getAppConfig('app_name').then( title => {
-            this.titleService.setTitle(title);
-        });
-
-        if (this.oidcSecurityService.moduleSetup) {
-            this.doCallbackLogicIfRequired();
-        } else {
-            this.oidcSecurityService.onModuleSetup.subscribe(() => {
-                this.doCallbackLogicIfRequired();
-            });
-        }
+        this.configureWithNewConfigApi();
     }
 
-    ngOnInit(): void {
-        this.oidcSecurityService.getIsAuthorized().subscribe(
-            (isAuthorized: boolean) => {
-                this.isAuthorized = isAuthorized;
-            });
+    ngOnInit() {
 
-        this.oidcSecurityService.getUserData().subscribe(
-            (userData: any) => {
-                this.userData = userData;
-            });
     }
 
-    private doCallbackLogicIfRequired(): void {
-        if (window.location.hash || window.location.search) {
-            // Only for production.
-            if (window.location.search.match(/\^?i=/) == null) {
-                this.oidcSecurityService.authorizedCallback();
-            }
-        }
+    private configureWithNewConfigApi() {
+        this.oauthService.configure(authConfig);
+        this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+        this.oauthService.loadDiscoveryDocumentAndTryLogin();
     }
 }

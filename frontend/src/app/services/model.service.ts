@@ -6,9 +6,9 @@ import { CoreUtils, IPager } from '../utils/core.utils';
 import { BasicModelService } from './basic.model.service';
 
 @Injectable()
-export class RoleService extends BasicModelService {
+export class ModelService  extends BasicModelService {
   constructor(public http: HttpClient, public coreUtils: CoreUtils) {
     super(http, coreUtils);
-    this.restUrl = environment.api + 'adm/role/';
+    this.restUrl = environment.api + 'adm/model/';
   }
 }
