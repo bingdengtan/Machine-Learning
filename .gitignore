@@ -43,4 +43,5 @@ testem.log
 Thumbs.db
 
 /static
-/app/__pycache__/*.*
+/app/__pycache__
+/webRFQ/__pycache__
